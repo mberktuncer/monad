@@ -2,7 +2,6 @@ package com.mberktuncer.monad.views;
 
 import com.mberktuncer.monad.model.Employee;
 import com.mberktuncer.monad.service.EmployeeService;
-import com.mberktuncer.monad.service.impl.EmployeeServiceImpl;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
