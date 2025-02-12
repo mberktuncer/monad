@@ -10,7 +10,13 @@ import java.util.List;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    public List<Employee> findAll() {
+    private final List<Employee> employees;
+    
+    public EmployeeServiceImpl() {
+        this.employees = initializeEmployees();
+    }
+    
+    private List<Employee> initializeEmployees() {
         List<Employee> employees = new ArrayList<>();
         employees.add(new Employee("11111111111", "John", "Doe"));
         employees.add(new Employee("22222222222", "Jane", "Smith"));
@@ -23,6 +29,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employees.add(new Employee("99999999999", "Grace", "Taylor"));
         employees.add(new Employee("00000000000", "Henry", "Anderson"));
         return employees;
+    }
+
+    @Override
+    public List<Employee> findAll() {
+        return new ArrayList<>(employees);
     }
 
 }
