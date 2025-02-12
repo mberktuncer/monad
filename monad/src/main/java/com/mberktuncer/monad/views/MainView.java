@@ -1,5 +1,6 @@
 package com.mberktuncer.monad.views;
 
+import com.mberktuncer.monad.constant.views.main.MainViewEnums;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -33,7 +34,7 @@ public class MainView extends AppLayout {
     private Component createHeaderContent() {
         HorizontalLayout layout = new HorizontalLayout();
 
-        layout.setId("header");
+        layout.setId(MainViewEnums.HEADER_LAYOUT_ID.getText());
 
         layout.setWidthFull();
         layout.setSpacing(false);
@@ -53,12 +54,12 @@ public class MainView extends AppLayout {
         layout.setSizeFull();
         layout.setPadding(false);
         layout.setSpacing(false);
-        layout.getThemeList().set("spacing-s", true);
+        layout.getThemeList().set(MainViewEnums.DRAWER_THEME.getText(), true);
         layout.setAlignItems(FlexComponent.Alignment.STRETCH);
 
         HorizontalLayout logoLayout = new HorizontalLayout();
-        logoLayout.setId("logo");
-        logoLayout.add(new H1("Monad"));
+        logoLayout.setId(MainViewEnums.DRAWER_LAYOUT_ID.getText());
+        logoLayout.add(new H1(MainViewEnums.DRAWER_LAYOUT_H1.getText()));
 
         layout.add(logoLayout, menu);
         return layout;
@@ -68,15 +69,16 @@ public class MainView extends AppLayout {
         final Tabs tabs = new Tabs();
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
-        tabs.setId("tabs");
+        tabs.setId(MainViewEnums.MENU_ID.getText());
         tabs.add(createMenuItems());
         return tabs;
     }
 
     private Component[] createMenuItems() {
-        return new Tab[] { createTab("Hello World", HelloWorldView.class),
-                createTab("Personel", EmployeeView.class),
-                createTab("About", AboutView.class) };
+        return new Tab[] {
+                createTab(MainViewEnums.TAB_HELLO_WORLD.getText(), HelloWorldView.class),
+                createTab(MainViewEnums.TAB_EMPLOYEES.getText(), EmployeeView.class),
+                createTab(MainViewEnums.TAB_ABOUT.getText(), AboutView.class) };
     }
 
     private static Tab createTab(String text,

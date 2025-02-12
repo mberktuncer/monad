@@ -1,7 +1,7 @@
 package com.mberktuncer.monad.service.impl;
 
 import com.mberktuncer.monad.model.Employee;
-import com.mberktuncer.monad.service.EmployeeService;
+import com.mberktuncer.monad.service.contract.EmployeeService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

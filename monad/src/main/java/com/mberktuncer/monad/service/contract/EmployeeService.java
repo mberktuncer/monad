@@ -1,4 +1,4 @@
-package com.mberktuncer.monad.service;
+package com.mberktuncer.monad.service.contract;
 
 import com.mberktuncer.monad.model.Employee;
 
