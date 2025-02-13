@@ -46,10 +46,7 @@ public class EmployeeView extends VerticalLayout {
         grid.setDataProvider(dataProvider);
 
         grid.removeAllColumns();
-        grid.addColumn(Employee::getIdentityNumber)
-            .setHeader(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData())
-            .setWidth(EmployeeGridProperty.IDENTITY_COLUMN_WIDTH.getData())
-            .setFlexGrow(0);
+
         grid.addColumn(Employee::getFirstName)
             .setHeader(EmployeeGridProperty.NAME_COLUMN_HEADER.getData())
             .setSortable(true);
