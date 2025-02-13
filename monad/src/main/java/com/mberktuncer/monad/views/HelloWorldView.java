@@ -17,18 +17,36 @@ public class HelloWorldView extends HorizontalLayout {
     private Button sayHello;
 
     public HelloWorldView() {
+        initializeComponents();
+        configureLayout();
+        setupEventListeners();
+    }
+
+    private void initializeComponents() {
         name = new TextField(HelloWorldText.NAME_PLACEHOLDER.getText());
         sayHello = new Button(HelloWorldText.BUTTON_TEXT.getText());
+    }
+
+    private void configureLayout() {
         add(name, sayHello);
         setVerticalComponentAlignment(Alignment.END, name, sayHello);
-
-        sayHello.addClickListener(e -> {
-            Notification.show(HelloWorldText.GREETING_PREFIX.getText() + name.getValue());
-        });
-
-        sayHello.addClickShortcut(Key.ENTER);
-
         setMargin(true);
     }
 
+    private void setupEventListeners() {
+        setupButtonClickListener();
+        setupKeyboardShortcut();
+    }
+
+    private void setupButtonClickListener() {
+        sayHello.addClickListener(e -> showGreeting());
+    }
+
+    private void setupKeyboardShortcut() {
+        sayHello.addClickShortcut(Key.ENTER);
+    }
+
+    private void showGreeting() {
+        Notification.show(HelloWorldText.GREETING_PREFIX.getText() + name.getValue());
+    }
 }
