@@ -1,39 +1,48 @@
 package com.mberktuncer.monad.service.impl;
 
 import com.mberktuncer.monad.model.Employee;
+import com.mberktuncer.monad.repository.EmployeeRepository;
 import com.mberktuncer.monad.service.contract.EmployeeService;
+import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.List;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    private final List<Employee> employees;
-    
-    public EmployeeServiceImpl() {
-        this.employees = initializeEmployees();
+    private final EmployeeRepository employeeRepository;
+
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
+        this.employeeRepository = employeeRepository;
     }
-    
-    private List<Employee> initializeEmployees() {
-        List<Employee> employees = new ArrayList<>();
-        employees.add(new Employee("11111111111", "John", "Doe"));
-        employees.add(new Employee("22222222222", "Jane", "Smith"));
-        employees.add(new Employee("33333333333", "Alice", "Johnson"));
-        employees.add(new Employee("44444444444", "Bob", "Brown"));
-        employees.add(new Employee("55555555555", "Charlie", "Davis"));
-        employees.add(new Employee("66666666666", "David", "Miller"));
-        employees.add(new Employee("77777777777", "Eva", "Wilson"));
-        employees.add(new Employee("88888888888", "Frank", "Moore"));
-        employees.add(new Employee("99999999999", "Grace", "Taylor"));
-        employees.add(new Employee("00000000000", "Henry", "Anderson"));
-        return employees;
+
+    @PostConstruct
+    public void initializeEmployees() {
+        if (employeeRepository.count() == 0) {
+            try {
+                ClassPathResource resource = new ClassPathResource("employees.txt");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
+                
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split(",");
+                    Employee employee = new Employee(data[0].trim(), data[1].trim(), data[2].trim());
+                    employeeRepository.save(employee);
+                }
+                
+                reader.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Çalışanlar yüklenirken hata oluştu", e);
+            }
+        }
     }
 
     @Override
     public List<Employee> findAll() {
-        return new ArrayList<>(employees);
+        return employeeRepository.findAll();
     }
-
 }
