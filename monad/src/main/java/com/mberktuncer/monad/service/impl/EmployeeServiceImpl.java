@@ -36,7 +36,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 
                 reader.close();
             } catch (Exception e) {
-                throw new RuntimeException("Çalışanlar yüklenirken hata oluştu", e);
+                throw new RuntimeException("Something went wrong when employees importing", e);
             }
         }
     }
