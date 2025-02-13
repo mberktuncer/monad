@@ -46,15 +46,15 @@ public class EmployeeView extends VerticalLayout {
         grid.setDataProvider(dataProvider);
 
         grid.removeAllColumns();
-        grid.addColumn(Employee::getTC)
+        grid.addColumn(Employee::getIdentityNumber)
             .setHeader(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData())
             .setWidth(EmployeeGridProperty.IDENTITY_COLUMN_WIDTH.getData())
             .setFlexGrow(0);
-        grid.addColumn(Employee::getAd)
+        grid.addColumn(Employee::getFirstName)
             .setHeader(EmployeeGridProperty.NAME_COLUMN_HEADER.getData())
             .setSortable(true);
             
-        grid.addColumn(Employee::getSoyad)
+        grid.addColumn(Employee::getLastName)
             .setHeader(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData())
             .setSortable(true);
 
@@ -63,7 +63,7 @@ public class EmployeeView extends VerticalLayout {
             if (filterText.isEmpty()){
                 dataProvider.clearFilters();
             }else{
-                dataProvider.setFilter(Employee::getAd,
+                dataProvider.setFilter(Employee::getFirstName,
                         name -> name != null && name.toLowerCase().contains(filterText.toLowerCase()));
             }
         });

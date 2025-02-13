@@ -4,7 +4,7 @@ public final class ViewConstants {
     public static final String ABOUT_TITLE = "About";
     public static final String ABOUT_ROUTE = "about";
 
-    public static final String EMPLOYEE_TITLE = "Personel";
+    public static final String EMPLOYEE_TITLE = "Employee";
     public static final String EMPLOYEE_ROUTE = "employee";
 
     public static final String HELLO_WORLD_TITLE = "Hello World";

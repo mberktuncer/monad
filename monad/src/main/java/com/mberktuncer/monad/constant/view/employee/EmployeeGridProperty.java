@@ -8,11 +8,11 @@ import lombok.RequiredArgsConstructor;
 public enum EmployeeGridProperty {
     GRID_HEIGHT("400px"),
 
-    IDENTITY_COLUMN_HEADER("TC No"),
+    IDENTITY_COLUMN_HEADER("Identity Number"),
     IDENTITY_COLUMN_WIDTH("150px"),
 
-    NAME_COLUMN_HEADER("Ad"),
-    LASTNAME_COLUMN_HEADER("Soyad")
+    NAME_COLUMN_HEADER("First Name"),
+    LASTNAME_COLUMN_HEADER("Last Name")
     ;
 
     private final String data;

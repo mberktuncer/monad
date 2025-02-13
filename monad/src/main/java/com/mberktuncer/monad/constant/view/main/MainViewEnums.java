@@ -15,7 +15,7 @@ public enum MainViewEnums {
     MENU_ID("tabs"),
 
     TAB_HELLO_WORLD("Hello World"),
-    TAB_EMPLOYEES("Personel"),
+    TAB_EMPLOYEES("Employee"),
     TAB_ABOUT("About")
     ;
     private final String text;

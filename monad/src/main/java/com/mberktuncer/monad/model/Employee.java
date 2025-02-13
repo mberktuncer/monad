@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 public class Employee {
 
-    private String TC;
-    private String ad;
-    private String soyad;
+    private String identityNumber;
+    private String firstName;
+    private String lastName;
 }

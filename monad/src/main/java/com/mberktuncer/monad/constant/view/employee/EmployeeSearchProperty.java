@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EmployeeSearchProperty {
-    PLACEHOLDER_TEXT("İsim ile ara.."),
+    PLACEHOLDER_TEXT("Search by name.."),
     FIELD_WIDTH("300px"),
 
     ;
