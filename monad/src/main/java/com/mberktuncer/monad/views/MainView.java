@@ -1,6 +1,6 @@
 package com.mberktuncer.monad.views;
 
-import com.mberktuncer.monad.constant.view.main.MainViewEnums;
+import com.mberktuncer.monad.constant.view.mainview.MainViewEnums;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;

@@ -1,6 +1,6 @@
-package com.mberktuncer.monad.service.impl;
+package com.mberktuncer.monad.config;
 
-import com.mberktuncer.monad.model.Employee;
+import com.mberktuncer.monad.model.entity.Employee;
 import com.mberktuncer.monad.repository.EmployeeRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
@@ -10,11 +10,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 @Service
-public class DataInitializationServiceImpl {
+public class DataInitializationConfiguration {
 
     private final EmployeeRepository employeeRepository;
 
-    public DataInitializationServiceImpl(EmployeeRepository employeeRepository) {
+    public DataInitializationConfiguration(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 

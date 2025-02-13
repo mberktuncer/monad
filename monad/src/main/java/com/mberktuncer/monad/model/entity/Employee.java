@@ -1,4 +1,4 @@
-package com.mberktuncer.monad.model;
+package com.mberktuncer.monad.model.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

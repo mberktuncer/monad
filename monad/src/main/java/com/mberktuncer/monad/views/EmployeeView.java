@@ -1,9 +1,13 @@
 package com.mberktuncer.monad.views;
 
 import com.mberktuncer.monad.constant.common.ViewConstants;
+import com.mberktuncer.monad.constant.exception.ConfirmMessages;
+import com.mberktuncer.monad.constant.exception.ErrorMessages;
 import com.mberktuncer.monad.constant.view.employee.EmployeeGridProperty;
+import com.mberktuncer.monad.constant.view.employee.EmployeeSaveProperty;
 import com.mberktuncer.monad.constant.view.employee.EmployeeSearchProperty;
-import com.mberktuncer.monad.model.Employee;
+import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
+import com.mberktuncer.monad.model.entity.Employee;
 import com.mberktuncer.monad.service.contract.EmployeeService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -19,6 +23,8 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.mberktuncer.monad.exception.EmployeeValidationException;
+import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -93,13 +99,13 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private HorizontalLayout getToolbar() {
-        searchField.setPlaceholder("Filter by name...");
+        searchField.setPlaceholder(EmployeeSearchProperty.PLACEHOLDER_TEXT.getData());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
 
-        identityNumberField.setPlaceholder("Enter identity number");
-        firstNameField.setPlaceholder("Enter first name");
-        lastNameField.setPlaceholder("Enter last name");
+        identityNumberField.setPlaceholder(EmployeeSaveProperty.IDENTITY_PLACEHOLDER.getData());
+        firstNameField.setPlaceholder(EmployeeSaveProperty.NAME_PLACEHOLDER.getData());
+        lastNameField.setPlaceholder(EmployeeSaveProperty.LASTNAME_PLACEHOLDER.getData());
 
         addButton.addClickListener(e -> addEmployee());
 
@@ -133,8 +139,8 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void addEmployee() {
-        if (isValidInput()) {
-            Employee employee = new Employee(
+        try {
+            CreateEmployeeRequest employee = new CreateEmployeeRequest(
                 identityNumberField.getValue(),
                 firstNameField.getValue(),
                 lastNameField.getValue()
@@ -144,8 +150,10 @@ public class EmployeeView extends VerticalLayout {
             clearForm();
             updateList();
             showSuccessNotification();
-        } else {
-            showErrorNotification();
+        } catch (EmployeeValidationException | DuplicateEmployeeException e) {
+            showErrorNotification(e.getMessage());
+        } catch (Exception e) {
+            showErrorNotification(ErrorMessages.UNEXPECTED.getText());
         }
     }
 
@@ -163,14 +171,12 @@ public class EmployeeView extends VerticalLayout {
     }
 
     private void showSuccessNotification() {
-        Notification notification = Notification.show("Employee added successfully!");
+        Notification notification = Notification.show(ConfirmMessages.SAVED_EMPLOYEE.getText());
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-    private void showErrorNotification() {
-        Notification notification = Notification.show(
-            "Please fill all fields correctly. Identity number must be 11 digits."
-        );
+    private void showErrorNotification(String message) {
+        Notification notification = Notification.show(message);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
 

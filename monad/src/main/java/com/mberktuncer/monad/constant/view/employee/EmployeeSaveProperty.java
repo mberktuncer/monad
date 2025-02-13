@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum EmployeeSearchProperty {
-    PLACEHOLDER_TEXT("Filter by name..."),
-    FIELD_WIDTH("300px"),
-
+public enum EmployeeSaveProperty {
+    IDENTITY_PLACEHOLDER("Enter identity number"),
+    NAME_PLACEHOLDER("Enter first name"),
+    LASTNAME_PLACEHOLDER("Enter last name")
     ;
-
     private final String data;
 }
