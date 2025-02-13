@@ -1,4 +1,4 @@
-package com.mberktuncer.monad.constant.views.main;
+package com.mberktuncer.monad.constant.view.main;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

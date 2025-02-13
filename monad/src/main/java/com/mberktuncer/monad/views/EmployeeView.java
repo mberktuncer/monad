@@ -1,7 +1,8 @@
 package com.mberktuncer.monad.views;
 
-import com.mberktuncer.monad.constant.views.employee.GridData;
-import com.mberktuncer.monad.constant.views.employee.SearchField;
+import com.mberktuncer.monad.constant.common.ViewConstants;
+import com.mberktuncer.monad.constant.view.employee.EmployeeGridProperty;
+import com.mberktuncer.monad.constant.view.employee.EmployeeSearchProperty;
 import com.mberktuncer.monad.model.Employee;
 import com.mberktuncer.monad.service.contract.EmployeeService;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,8 +18,8 @@ import com.vaadin.flow.component.grid.GridVariant;
 
 import java.util.List;
 
-@Route(value = "employee", layout = MainView.class)
-@PageTitle("Personel")
+@Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
+@PageTitle(ViewConstants.EMPLOYEE_TITLE)
 public class EmployeeView extends VerticalLayout {
     private final EmployeeService employeeService;
     private final Grid<Employee> grid;
@@ -29,15 +30,15 @@ public class EmployeeView extends VerticalLayout {
         setSizeFull();
 
         TextField searchField = new TextField();
-        searchField.setPlaceholder(SearchField.SEARCH_FIELD_TEXT.getData());
-        searchField.setWidth(SearchField.SEARCH_FIELD_WIDTH.getData());
+        searchField.setPlaceholder(EmployeeSearchProperty.PLACEHOLDER_TEXT.getData());
+        searchField.setWidth(EmployeeSearchProperty.FIELD_WIDTH.getData());
         searchField.setPrefixComponent(new Icon(VaadinIcon.SEARCH));
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
 
         grid = new Grid<>(Employee.class);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        grid.setHeight(GridData.GRID_HEIGHT_SIZE.getData());
+        grid.setHeight(EmployeeGridProperty.GRID_HEIGHT.getData());
 
         List<Employee> employees = employeeService.findAll();
 
@@ -46,15 +47,15 @@ public class EmployeeView extends VerticalLayout {
 
         grid.removeAllColumns();
         grid.addColumn(Employee::getTC)
-            .setHeader(GridData.COLUMN_IDENTITY_NO_TEXT.getData())
-            .setWidth(GridData.COLUMN_IDENTITY_NO_WIDTH_SIZE.getData())
+            .setHeader(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData())
+            .setWidth(EmployeeGridProperty.IDENTITY_COLUMN_WIDTH.getData())
             .setFlexGrow(0);
         grid.addColumn(Employee::getAd)
-            .setHeader(GridData.COLUMN_NAME_TEXT.getData())
+            .setHeader(EmployeeGridProperty.NAME_COLUMN_HEADER.getData())
             .setSortable(true);
             
         grid.addColumn(Employee::getSoyad)
-            .setHeader(GridData.COLUMN_LAST_NAME_TEXT.getData())
+            .setHeader(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData())
             .setSortable(true);
 
         searchField.addValueChangeListener(e -> {
