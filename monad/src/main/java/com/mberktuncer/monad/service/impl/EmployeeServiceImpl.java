@@ -1,24 +1,24 @@
 package com.mberktuncer.monad.service.impl;
 
 import com.mberktuncer.monad.constant.exception.ErrorMessages;
+import com.mberktuncer.monad.core.mapper.MapperUtil;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
 import com.mberktuncer.monad.model.entity.Employee;
 import com.mberktuncer.monad.repository.EmployeeRepository;
 import com.mberktuncer.monad.service.contract.EmployeeService;
 import com.mberktuncer.monad.core.validator.EmployeeValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
-
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
+    private final MapperUtil mapperUtil;
 
     @Override
     public List<Employee> findAll() {
@@ -31,10 +31,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeRepository.findById(employee.getIdentityNumber()).isPresent()) {
             throw new DuplicateEmployeeException(ErrorMessages.DUPLICATE_EMPLOYEE.getText());
         }
-        Employee newEmployee = new Employee();
-        newEmployee.setFirstName(employee.getFirstName());
-        newEmployee.setLastName(employee.getLastName());
-        newEmployee.setIdentityNumber(employee.getIdentityNumber());
+        Employee newEmployee = mapperUtil.mapSourceToDestinationType(employee, Employee.class);
+
         return employeeRepository.save(newEmployee);
     }
 }
