@@ -4,7 +4,6 @@ import com.mberktuncer.monad.constant.common.ViewConstants;
 import com.mberktuncer.monad.constant.exception.ConfirmMessages;
 import com.mberktuncer.monad.constant.exception.ErrorMessages;
 import com.mberktuncer.monad.constant.view.employee.EmployeeGridProperty;
-import com.mberktuncer.monad.constant.view.employee.EmployeeSaveProperty;
 import com.mberktuncer.monad.constant.view.employee.EmployeeSearchProperty;
 import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
 import com.mberktuncer.monad.model.entity.Employee;
@@ -25,6 +24,8 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.mberktuncer.monad.exception.EmployeeValidationException;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -36,7 +37,8 @@ public class EmployeeView extends VerticalLayout {
     private TextField identityNumberField = new TextField("Identity Number");
     private TextField firstNameField = new TextField("First Name");
     private TextField lastNameField = new TextField("Last Name");
-    private Button addButton = new Button("Add Employee");
+    private Dialog employeeDialog;
+    private FormLayout formLayout;
 
     public EmployeeView(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -46,7 +48,7 @@ public class EmployeeView extends VerticalLayout {
         setSizeFull();
         initializeSearchField();
         configureGrid();
-        configureForm();
+        createDialog();
         setupSearchFilter();
         
         add(getToolbar(), grid);
@@ -98,35 +100,42 @@ public class EmployeeView extends VerticalLayout {
         }
     }
 
+    private void createDialog() {
+        employeeDialog = new Dialog();
+        employeeDialog.setHeaderTitle("Add New Employee");
+
+        formLayout = new FormLayout();
+        
+        identityNumberField = new TextField("Identity Number");
+        firstNameField = new TextField("First Name");
+        lastNameField = new TextField("Last Name");
+        
+        configureForm();
+        
+        formLayout.add(identityNumberField, firstNameField, lastNameField);
+
+        Button saveButton = new Button("Save", e -> addEmployee());
+        Button cancelButton = new Button("Cancel", e -> employeeDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(saveButton, cancelButton);
+        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+
+        VerticalLayout dialogLayout = new VerticalLayout(formLayout, buttonLayout);
+        employeeDialog.add(dialogLayout);
+    }
+
     private HorizontalLayout getToolbar() {
         searchField.setPlaceholder(EmployeeSearchProperty.PLACEHOLDER_TEXT.getData());
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
 
-        identityNumberField.setPlaceholder(EmployeeSaveProperty.IDENTITY_PLACEHOLDER.getData());
-        firstNameField.setPlaceholder(EmployeeSaveProperty.NAME_PLACEHOLDER.getData());
-        lastNameField.setPlaceholder(EmployeeSaveProperty.LASTNAME_PLACEHOLDER.getData());
+        Button addButton = new Button("Add New Employee", new Icon(VaadinIcon.PLUS));
+        addButton.addClickListener(e -> {
+            clearForm();
+            employeeDialog.open();
+        });
 
-        addButton.addClickListener(e -> addEmployee());
-
-        searchField.setHeight("var(--lumo-text-field-size)");
-        identityNumberField.setHeight("var(--lumo-text-field-size)");
-        firstNameField.setHeight("var(--lumo-text-field-size)");
-        lastNameField.setHeight("var(--lumo-text-field-size)");
-        addButton.setHeight("var(--lumo-text-field-size)");
-
-        identityNumberField.setLabel(null);
-        firstNameField.setLabel(null);
-        lastNameField.setLabel(null);
-
-        HorizontalLayout toolbar = new HorizontalLayout(
-            searchField, 
-            identityNumberField, 
-            firstNameField, 
-            lastNameField, 
-            addButton
-        );
-        
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, addButton);
         toolbar.setAlignItems(Alignment.BASELINE);
         toolbar.addClassName("toolbar");
         return toolbar;
@@ -147,6 +156,7 @@ public class EmployeeView extends VerticalLayout {
             );
             
             employeeService.save(employee);
+            employeeDialog.close();
             clearForm();
             updateList();
             showSuccessNotification();
