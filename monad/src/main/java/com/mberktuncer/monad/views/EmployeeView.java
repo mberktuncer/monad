@@ -44,8 +44,6 @@ public class EmployeeView extends VerticalLayout {
     private Dialog employeeDialog;
     private FormLayout formLayout;
     private Button deleteButton;
-    private List<Employee> selectedEmployees;
-    private List<Employee> employees;
 
     public EmployeeView(EmployeeService employeeService) {
         this.employeeService = employeeService;
