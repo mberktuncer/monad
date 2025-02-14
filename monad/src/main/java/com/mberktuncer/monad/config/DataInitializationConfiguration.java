@@ -28,7 +28,7 @@ public class DataInitializationConfiguration {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] data = line.split(",");
-                    Employee employee = new Employee(data[0].trim(), data[1].trim(), data[2].trim());
+                    Employee employee = new Employee(data[0].trim(), data[1].trim(), data[2].trim(), 1);
                     employeeRepository.save(employee);
                 }
                 

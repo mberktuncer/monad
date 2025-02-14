@@ -28,11 +28,19 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee save(CreateEmployeeRequest request) {
         EmployeeValidator.validateEmployee(request);
-        if (employeeRepository.findById(request.getIdentityNumber()).isPresent()) {
+        Employee existingEmployee = employeeRepository.findById(request.getIdentityNumber()).orElse(null);
+        
+        if (existingEmployee != null && existingEmployee.getStatus() == 0) {
+            existingEmployee.setFirstName(request.getFirstName());
+            existingEmployee.setLastName(request.getLastName());
+            existingEmployee.setStatus(1);
+            return employeeRepository.save(existingEmployee);
+        } else if (existingEmployee != null && existingEmployee.getStatus() == 1) {
             throw new DuplicateEmployeeException(ErrorMessages.DUPLICATE_EMPLOYEE.getText());
         }
+        
         Employee newEmployee = mapperUtil.mapSourceToDestinationType(request, Employee.class);
-
+        newEmployee.setStatus(1);
         return employeeRepository.save(newEmployee);
     }
 
@@ -58,5 +66,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         existingEmployee.setLastName(request.getLastName());
         
         return employeeRepository.save(existingEmployee);
+    }
+
+    @Override
+    public void softDeleteEmployees(String identityNumber) {
+        Employee employee = findByIdentityNumber(identityNumber);
+        employee.setStatus(0);
+        employeeRepository.save(employee);
+    }
+
+    @Override
+    public Employee findByIdentityNumber(String identityNumber) {
+        return employeeRepository.findByIdentityNumber(identityNumber);
+    }
+
+    @Override
+    public List<Employee> getAllActiveEmployees() {
+        return employeeRepository.findByStatus(1);
     }
 }

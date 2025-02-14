@@ -12,9 +12,9 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Employee {
-
     @Id
     private String identityNumber;
     private String firstName;
     private String lastName;
+    private Integer status = 1;
 }

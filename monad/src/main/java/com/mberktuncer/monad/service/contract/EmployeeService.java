@@ -9,5 +9,8 @@ public interface EmployeeService {
     public List<Employee> findAll();
     Employee save(CreateEmployeeRequest employee);
     void deleteEmployees(List<Employee> employees);
+    void softDeleteEmployees(String identityNumber);
     Employee update(String identityNumber, CreateEmployeeRequest employee);
+    Employee findByIdentityNumber(String identityNumber);
+    List<Employee> getAllActiveEmployees();
 }

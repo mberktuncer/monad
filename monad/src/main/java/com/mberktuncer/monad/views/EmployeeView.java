@@ -25,11 +25,11 @@ import com.mberktuncer.monad.exception.EmployeeValidationException;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.ButtonVariant;
+import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
+
 import com.vaadin.flow.component.html.Div;
+import jakarta.annotation.PostConstruct;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -44,6 +44,8 @@ public class EmployeeView extends VerticalLayout {
     private Dialog employeeDialog;
     private FormLayout formLayout;
     private Button deleteButton;
+    private List<Employee> selectedEmployees;
+    private List<Employee> employees;
 
     public EmployeeView(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -63,6 +65,11 @@ public class EmployeeView extends VerticalLayout {
         
         add(getToolbar(), tooltip, grid);
         updateList();
+    }
+
+    @PostConstruct
+    public void init() {
+        employees = employeeService.getAllActiveEmployees();
     }
 
     private void initializeSearchField() {
@@ -184,7 +191,7 @@ public class EmployeeView extends VerticalLayout {
             employeeDialog.close();
             clearForm();
             updateList();
-            showSuccessNotification();
+            showSuccessNotification(ConfirmMessages.SAVED_EMPLOYEE.getText());
         } catch (EmployeeValidationException | DuplicateEmployeeException e) {
             showErrorNotification(e.getMessage());
         } catch (Exception e) {
@@ -198,8 +205,8 @@ public class EmployeeView extends VerticalLayout {
         lastNameField.clear();
     }
 
-    private void showSuccessNotification() {
-        Notification notification = Notification.show(ConfirmMessages.SAVED_EMPLOYEE.getText());
+    private void showSuccessNotification(String message) {
+        Notification notification = Notification.show(message);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
@@ -210,48 +217,21 @@ public class EmployeeView extends VerticalLayout {
 
     private void updateList() {
         dataProvider.getItems().clear();
-        dataProvider.getItems().addAll(employeeService.findAll());
+        dataProvider.getItems().addAll(employeeService.getAllActiveEmployees());
         dataProvider.refreshAll();
     }
 
-    private void deleteSelectedEmployees() {
-        Set<Employee> selectedEmployees = grid.getSelectedItems();
-        if (selectedEmployees.isEmpty()) {
-            return;
-        }
-
-        Dialog confirmDialog = new Dialog();
-        confirmDialog.setHeaderTitle(EmployeeDeleteProperty.CONFIRM_DIALOG_TITLE.getText());
-
-        VerticalLayout dialogLayout = new VerticalLayout();
-        dialogLayout.add(new Text("Are you sure you want to delete " + 
-            selectedEmployees.size() + " selected employee?"));
-
-        Button deleteButton = new Button(EmployeeDeleteProperty.DELETE_BUTTON.getText(), e -> {
-            try {
-                employeeService.deleteEmployees(new ArrayList<>(selectedEmployees));
-                updateList();
-                confirmDialog.close();
-                showSuccessNotification(ConfirmMessages.DELETED_EMPLOYEE.getText());
-            } catch (Exception ex) {
-                showErrorNotification(ErrorMessages.UNEXPECTED.getText());
+    public void deleteSelectedEmployees() {
+        Set<Employee> selected = grid.getSelectedItems();
+        if (!selected.isEmpty()) {
+            for (Employee employee : selected) {
+                employeeService.softDeleteEmployees(employee.getIdentityNumber());
             }
-        });
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
-
-        Button cancelButton = new Button(EmployeeDeleteProperty.CANCEL_BUTTON.getText(), e -> confirmDialog.close());
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(deleteButton, cancelButton);
-        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
-
-        dialogLayout.add(buttonLayout);
-        confirmDialog.add(dialogLayout);
-        confirmDialog.open();
-    }
-
-    private void showSuccessNotification(String message) {
-        Notification notification = Notification.show(message);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            grid.deselectAll();
+            updateList();
+            Notification.show(ConfirmMessages.DELETED_EMPLOYEE.getText(), 3000, Notification.Position.BOTTOM_START)
+                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        }
     }
 
     private void openUpdateDialog(Employee employee) {
