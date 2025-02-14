@@ -8,4 +8,5 @@ import java.util.List;
 public interface EmployeeService {
     public List<Employee> findAll();
     Employee save(CreateEmployeeRequest employee);
+    void deleteEmployees(List<Employee> employees);
 }
