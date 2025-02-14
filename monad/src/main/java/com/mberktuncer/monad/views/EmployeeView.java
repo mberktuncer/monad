@@ -29,6 +29,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.ButtonVariant;
 import java.util.Set;
 import java.util.ArrayList;
+import com.vaadin.flow.component.html.Div;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -55,7 +56,12 @@ public class EmployeeView extends VerticalLayout {
         createDialog();
         setupSearchFilter();
         
-        add(getToolbar(), grid);
+        Div tooltip = new Div();
+        tooltip.setText("Double click on a row to edit employee");
+        tooltip.getStyle().set("font-size", "small");
+        tooltip.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        
+        add(getToolbar(), tooltip, grid);
         updateList();
     }
 
@@ -75,6 +81,11 @@ public class EmployeeView extends VerticalLayout {
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         
         configureGridColumns();
+        
+        grid.addItemDoubleClickListener(event -> {
+            Employee employee = event.getItem();
+            openUpdateDialog(employee);
+        });
     }
 
     private void configureGridColumns() {
@@ -241,5 +252,49 @@ public class EmployeeView extends VerticalLayout {
     private void showSuccessNotification(String message) {
         Notification notification = Notification.show(message);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+    }
+
+    private void openUpdateDialog(Employee employee) {
+        Dialog updateDialog = new Dialog();
+        updateDialog.setHeaderTitle(EmployeeUpdateDialogProperty.DIALOG_TITLE.getText());
+
+        FormLayout updateForm = new FormLayout();
+        
+        TextField updateIdentityField = new TextField(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData());
+        TextField updateFirstNameField = new TextField(EmployeeGridProperty.NAME_COLUMN_HEADER.getData());
+        TextField updateLastNameField = new TextField(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData());
+        
+        updateIdentityField.setValue(employee.getIdentityNumber());
+        updateFirstNameField.setValue(employee.getFirstName());
+        updateLastNameField.setValue(employee.getLastName());
+        
+        updateForm.add(updateIdentityField, updateFirstNameField, updateLastNameField);
+
+        Button updateButton = new Button(EmployeeUpdateProperty.BUTTON_UPDATE.getText(), e -> {
+            try {
+                CreateEmployeeRequest request = new CreateEmployeeRequest(
+                    updateIdentityField.getValue(),
+                    updateFirstNameField.getValue(),
+                    updateLastNameField.getValue()
+                );
+                
+                employeeService.update(employee.getIdentityNumber(), request);
+                updateDialog.close();
+                updateList();
+                showSuccessNotification(ConfirmMessages.UPDATED_EMPLOYEE.getText());
+            } catch (Exception ex) {
+                showErrorNotification(ex.getMessage());
+            }
+        });
+        
+        Button cancelButton = new Button(EmployeeUpdateProperty.CANCEL_BUTTON.getText(), 
+            e -> updateDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(updateButton, cancelButton);
+        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+
+        VerticalLayout dialogLayout = new VerticalLayout(updateForm, buttonLayout);
+        updateDialog.add(dialogLayout);
+        updateDialog.open();
     }
 }

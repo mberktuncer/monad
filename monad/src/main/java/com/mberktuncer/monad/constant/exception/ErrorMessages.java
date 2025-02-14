@@ -16,6 +16,8 @@ public enum ErrorMessages {
     SHORT_NAME(" must be at least 2 characters"),
 
     UNEXPECTED("An unexpected error occurred"),
+
+    EMPLOYEE_NOT_FOUND("Employee not found."),
     ;
     private final String text;
 }

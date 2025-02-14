@@ -26,12 +26,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee save(CreateEmployeeRequest employee) {
-        EmployeeValidator.validateEmployee(employee);
-        if (employeeRepository.findById(employee.getIdentityNumber()).isPresent()) {
+    public Employee save(CreateEmployeeRequest request) {
+        EmployeeValidator.validateEmployee(request);
+        if (employeeRepository.findById(request.getIdentityNumber()).isPresent()) {
             throw new DuplicateEmployeeException(ErrorMessages.DUPLICATE_EMPLOYEE.getText());
         }
-        Employee newEmployee = mapperUtil.mapSourceToDestinationType(employee, Employee.class);
+        Employee newEmployee = mapperUtil.mapSourceToDestinationType(request, Employee.class);
 
         return employeeRepository.save(newEmployee);
     }
@@ -39,5 +39,24 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployees(List<Employee> employees) {
         employeeRepository.deleteAll(employees);
+    }
+
+    @Override
+    public Employee update(String identityNumber, CreateEmployeeRequest request) {
+        Employee existingEmployee = employeeRepository.findById(identityNumber)
+            .orElseThrow(() -> new RuntimeException(ErrorMessages.EMPLOYEE_NOT_FOUND.getText()));
+        
+        EmployeeValidator.validateEmployee(request);
+        
+        if (!identityNumber.equals(request.getIdentityNumber()) &&
+            employeeRepository.findById(request.getIdentityNumber()).isPresent()) {
+            throw new DuplicateEmployeeException(ErrorMessages.DUPLICATE_EMPLOYEE.getText());
+        }
+        
+        existingEmployee.setIdentityNumber(request.getIdentityNumber());
+        existingEmployee.setFirstName(request.getFirstName());
+        existingEmployee.setLastName(request.getLastName());
+        
+        return employeeRepository.save(existingEmployee);
     }
 }
