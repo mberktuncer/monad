@@ -10,10 +10,15 @@
         <module name="monad" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="monad (1)" target="1.5" />
+      <module name="monad (2) (com.mberktuncer)" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="monad" options="-parameters" />
+      <module name="monad (2) (com.mberktuncer)" options="-parameters" />
     </option>
   </component>
 </project>
