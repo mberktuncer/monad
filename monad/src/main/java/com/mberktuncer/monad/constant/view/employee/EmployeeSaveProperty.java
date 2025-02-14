@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 public enum EmployeeSaveProperty {
     IDENTITY_PLACEHOLDER("Enter identity number"),
     NAME_PLACEHOLDER("Enter first name"),
-    LASTNAME_PLACEHOLDER("Enter last name")
+    LASTNAME_PLACEHOLDER("Enter last name"),
+
+    BUTTON_ADD("Add New Employee")
     ;
-    private final String data;
+    private final String text;
 }

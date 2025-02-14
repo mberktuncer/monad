@@ -3,8 +3,7 @@ package com.mberktuncer.monad.views;
 import com.mberktuncer.monad.constant.common.ViewConstants;
 import com.mberktuncer.monad.constant.exception.ConfirmMessages;
 import com.mberktuncer.monad.constant.exception.ErrorMessages;
-import com.mberktuncer.monad.constant.view.employee.EmployeeGridProperty;
-import com.mberktuncer.monad.constant.view.employee.EmployeeSearchProperty;
+import com.mberktuncer.monad.constant.view.employee.*;
 import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
 import com.mberktuncer.monad.model.entity.Employee;
 import com.mberktuncer.monad.service.contract.EmployeeService;
@@ -26,6 +25,10 @@ import com.mberktuncer.monad.exception.EmployeeValidationException;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.button.ButtonVariant;
+import java.util.Set;
+import java.util.ArrayList;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -34,11 +37,12 @@ public class EmployeeView extends VerticalLayout {
     private final Grid<Employee> grid;
     private final ListDataProvider<Employee> dataProvider;
     private TextField searchField;
-    private TextField identityNumberField = new TextField("Identity Number");
-    private TextField firstNameField = new TextField("First Name");
-    private TextField lastNameField = new TextField("Last Name");
+    private TextField identityNumberField = new TextField(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData());
+    private TextField firstNameField = new TextField(EmployeeGridProperty.NAME_COLUMN_HEADER.getData());
+    private TextField lastNameField = new TextField(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData());
     private Dialog employeeDialog;
     private FormLayout formLayout;
+    private Button deleteButton;
 
     public EmployeeView(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -68,6 +72,7 @@ public class EmployeeView extends VerticalLayout {
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.setHeight(EmployeeGridProperty.GRID_HEIGHT.getData());
         grid.setDataProvider(dataProvider);
+        grid.setSelectionMode(Grid.SelectionMode.MULTI);
         
         configureGridColumns();
     }
@@ -102,13 +107,13 @@ public class EmployeeView extends VerticalLayout {
 
     private void createDialog() {
         employeeDialog = new Dialog();
-        employeeDialog.setHeaderTitle("Add New Employee");
+        employeeDialog.setHeaderTitle(EmployeeAddDialogProperty.DIALOG_TITLE.getText());
 
         formLayout = new FormLayout();
         
-        identityNumberField = new TextField("Identity Number");
-        firstNameField = new TextField("First Name");
-        lastNameField = new TextField("Last Name");
+        identityNumberField = new TextField(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData());
+        firstNameField = new TextField(EmployeeGridProperty.NAME_COLUMN_HEADER.getData());
+        lastNameField = new TextField(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData());
         
         configureForm();
         
@@ -129,15 +134,24 @@ public class EmployeeView extends VerticalLayout {
         searchField.setClearButtonVisible(true);
         searchField.setValueChangeMode(ValueChangeMode.LAZY);
 
-        Button addButton = new Button("Add New Employee", new Icon(VaadinIcon.PLUS));
+        Button addButton = new Button(EmployeeSaveProperty.BUTTON_ADD.getText(), new Icon(VaadinIcon.PLUS));
         addButton.addClickListener(e -> {
             clearForm();
             employeeDialog.open();
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(searchField, addButton);
+        deleteButton = new Button(EmployeeDeleteProperty.BUTTON_DELETE.getText(), new Icon(VaadinIcon.TRASH));
+        deleteButton.setEnabled(false);
+        deleteButton.addClickListener(e -> deleteSelectedEmployees());
+
+        HorizontalLayout toolbar = new HorizontalLayout(searchField, addButton, deleteButton);
         toolbar.setAlignItems(Alignment.BASELINE);
         toolbar.addClassName("toolbar");
+        
+        grid.addSelectionListener(selection -> {
+            deleteButton.setEnabled(!selection.getAllSelectedItems().isEmpty());
+        });
+        
         return toolbar;
     }
 
@@ -167,13 +181,6 @@ public class EmployeeView extends VerticalLayout {
         }
     }
 
-    private boolean isValidInput() {
-        return !identityNumberField.isEmpty() && 
-               !firstNameField.isEmpty() && 
-               !lastNameField.isEmpty() &&
-               identityNumberField.getValue().length() == 11;
-    }
-
     private void clearForm() {
         identityNumberField.clear();
         firstNameField.clear();
@@ -194,5 +201,45 @@ public class EmployeeView extends VerticalLayout {
         dataProvider.getItems().clear();
         dataProvider.getItems().addAll(employeeService.findAll());
         dataProvider.refreshAll();
+    }
+
+    private void deleteSelectedEmployees() {
+        Set<Employee> selectedEmployees = grid.getSelectedItems();
+        if (selectedEmployees.isEmpty()) {
+            return;
+        }
+
+        Dialog confirmDialog = new Dialog();
+        confirmDialog.setHeaderTitle(EmployeeDeleteProperty.CONFIRM_DIALOG_TITLE.getText());
+
+        VerticalLayout dialogLayout = new VerticalLayout();
+        dialogLayout.add(new Text("Are you sure you want to delete " + 
+            selectedEmployees.size() + " selected employee?"));
+
+        Button deleteButton = new Button(EmployeeDeleteProperty.DELETE_BUTTON.getText(), e -> {
+            try {
+                employeeService.deleteEmployees(new ArrayList<>(selectedEmployees));
+                updateList();
+                confirmDialog.close();
+                showSuccessNotification(ConfirmMessages.DELETED_EMPLOYEE.getText());
+            } catch (Exception ex) {
+                showErrorNotification(ErrorMessages.UNEXPECTED.getText());
+            }
+        });
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
+
+        Button cancelButton = new Button(EmployeeDeleteProperty.CANCEL_BUTTON.getText(), e -> confirmDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(deleteButton, cancelButton);
+        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+
+        dialogLayout.add(buttonLayout);
+        confirmDialog.add(dialogLayout);
+        confirmDialog.open();
+    }
+
+    private void showSuccessNotification(String message) {
+        Notification notification = Notification.show(message);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 }
