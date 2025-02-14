@@ -65,11 +65,6 @@ public class EmployeeView extends VerticalLayout {
         updateList();
     }
 
-    @PostConstruct
-    public void init() {
-        employees = employeeService.getAllActiveEmployees();
-    }
-
     private void initializeSearchField() {
         searchField = new TextField();
         searchField.setPlaceholder(EmployeeSearchProperty.PLACEHOLDER_TEXT.getData());
