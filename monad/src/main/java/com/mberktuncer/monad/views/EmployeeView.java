@@ -25,11 +25,9 @@ import com.mberktuncer.monad.exception.EmployeeValidationException;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import java.util.List;
 import java.util.Set;
 
 import com.vaadin.flow.component.html.Div;
-import jakarta.annotation.PostConstruct;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)

@@ -6,7 +6,7 @@ import com.mberktuncer.monad.model.entity.Employee;
 import java.util.List;
 
 public interface EmployeeService {
-    public List<Employee> findAll();
+    List<Employee> findAll();
     Employee save(CreateEmployeeRequest employee);
     void deleteEmployees(List<Employee> employees);
     void softDeleteEmployees(String identityNumber);
