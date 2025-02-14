@@ -240,20 +240,18 @@ public class EmployeeView extends VerticalLayout {
 
         FormLayout updateForm = new FormLayout();
         
-        TextField updateIdentityField = new TextField(EmployeeGridProperty.IDENTITY_COLUMN_HEADER.getData());
         TextField updateFirstNameField = new TextField(EmployeeGridProperty.NAME_COLUMN_HEADER.getData());
         TextField updateLastNameField = new TextField(EmployeeGridProperty.LASTNAME_COLUMN_HEADER.getData());
         
-        updateIdentityField.setValue(employee.getIdentityNumber());
         updateFirstNameField.setValue(employee.getFirstName());
         updateLastNameField.setValue(employee.getLastName());
         
-        updateForm.add(updateIdentityField, updateFirstNameField, updateLastNameField);
+        updateForm.add(updateFirstNameField, updateLastNameField);
 
         Button updateButton = new Button(EmployeeUpdateProperty.BUTTON_UPDATE.getText(), e -> {
             try {
                 CreateEmployeeRequest request = new CreateEmployeeRequest(
-                    updateIdentityField.getValue(),
+                    employee.getIdentityNumber(),
                     updateFirstNameField.getValue(),
                     updateLastNameField.getValue()
                 );
