@@ -1,5 +1,3 @@
-# Monad Software Job Interview Task
-
 ## Project Overview
 
 This project is a web application for managing employee information. It is developed using the Vaadin framework and Spring Boot. The system includes employee addition, listing, updating, and soft-delete operations.
