@@ -13,4 +13,5 @@ public interface EmployeeService {
     Employee update(String identityNumber, CreateEmployeeRequest employee);
     Employee findByIdentityNumber(String identityNumber);
     List<Employee> getAllActiveEmployees();
+    void addRandomEmployeeFromAdditionalFile();
 }

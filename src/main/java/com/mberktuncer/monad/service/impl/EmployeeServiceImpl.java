@@ -1,5 +1,6 @@
 package com.mberktuncer.monad.service.impl;
 
+import com.mberktuncer.monad.constant.common.FileNames;
 import com.mberktuncer.monad.constant.exception.ErrorMessages;
 import com.mberktuncer.monad.core.mapper.MapperUtil;
 import com.mberktuncer.monad.exception.DuplicateEmployeeException;
@@ -10,12 +11,16 @@ import com.mberktuncer.monad.service.contract.EmployeeService;
 import com.mberktuncer.monad.core.validator.EmployeeValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.mberktuncer.monad.util.EmployeeFileReader;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
+
+    private static final String ADDITIONAL_EMPLOYEES_FILE = FileNames.ADDITIONAL_EMPLOYEES_FILE.getFilePath();
+    private int currentEmployeeIndex = 0;
 
     private final EmployeeRepository employeeRepository;
     private final MapperUtil mapperUtil;
@@ -83,5 +88,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> getAllActiveEmployees() {
         return employeeRepository.findByStatus(1);
+    }
+
+    @Override
+    public void addRandomEmployeeFromAdditionalFile() {
+        CreateEmployeeRequest request = EmployeeFileReader.readEmployeeFromFile(
+            ADDITIONAL_EMPLOYEES_FILE, 
+            currentEmployeeIndex++
+        );
+        save(request);
     }
 }

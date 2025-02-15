@@ -2,7 +2,6 @@ package com.mberktuncer.monad.views;
 
 import com.mberktuncer.monad.constant.common.ViewConstants;
 import com.mberktuncer.monad.constant.exception.ConfirmMessages;
-import com.mberktuncer.monad.constant.exception.ErrorMessages;
 import com.mberktuncer.monad.constant.view.employee.*;
 import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
 import com.mberktuncer.monad.model.entity.Employee;
@@ -21,13 +20,16 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.mberktuncer.monad.exception.EmployeeValidationException;
-import com.mberktuncer.monad.exception.DuplicateEmployeeException;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import java.util.Set;
 
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.button.ButtonVariant;
+import java.util.List;
+import com.mberktuncer.monad.presenters.EmployeePresenter;
 
 @Route(value = ViewConstants.EMPLOYEE_ROUTE, layout = MainView.class)
 @PageTitle(ViewConstants.EMPLOYEE_TITLE)
@@ -42,6 +44,8 @@ public class EmployeeView extends VerticalLayout {
     private Dialog employeeDialog;
     private FormLayout formLayout;
     private Button deleteButton;
+    private Button refreshButton;
+    private EmployeePresenter presenter;
 
     public EmployeeView(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -54,13 +58,11 @@ public class EmployeeView extends VerticalLayout {
         createDialog();
         setupSearchFilter();
         
-        Div tooltip = new Div();
-        tooltip.setText("Double click on a row to edit employee");
-        tooltip.getStyle().set("font-size", "small");
-        tooltip.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        setupLayout();
         
-        add(getToolbar(), tooltip, grid);
-        updateList();
+        presenter = new EmployeePresenter(this, employeeService);
+        
+        presenter.loadInitialData();
     }
 
     private void initializeSearchField() {
@@ -157,9 +159,7 @@ public class EmployeeView extends VerticalLayout {
         toolbar.setAlignItems(Alignment.BASELINE);
         toolbar.addClassName("toolbar");
         
-        grid.addSelectionListener(selection -> {
-            deleteButton.setEnabled(!selection.getAllSelectedItems().isEmpty());
-        });
+        grid.addSelectionListener(selection -> deleteButton.setEnabled(!selection.getAllSelectedItems().isEmpty()));
         
         return toolbar;
     }
@@ -172,21 +172,15 @@ public class EmployeeView extends VerticalLayout {
 
     private void addEmployee() {
         try {
-            CreateEmployeeRequest employee = new CreateEmployeeRequest(
+            presenter.addEmployee(
                 identityNumberField.getValue(),
                 firstNameField.getValue(),
                 lastNameField.getValue()
             );
-            
-            employeeService.save(employee);
             employeeDialog.close();
             clearForm();
-            updateList();
-            showSuccessNotification(ConfirmMessages.SAVED_EMPLOYEE.getText());
-        } catch (EmployeeValidationException | DuplicateEmployeeException e) {
-            showErrorNotification(e.getMessage());
         } catch (Exception e) {
-            showErrorNotification(ErrorMessages.UNEXPECTED.getText());
+            showErrorNotification(e.getMessage());
         }
     }
 
@@ -196,12 +190,12 @@ public class EmployeeView extends VerticalLayout {
         lastNameField.clear();
     }
 
-    private void showSuccessNotification(String message) {
+    public void showSuccessNotification(String message) {
         Notification notification = Notification.show(message);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
-    private void showErrorNotification(String message) {
+    public void showErrorNotification(String message) {
         Notification notification = Notification.show(message);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
     }
@@ -212,16 +206,11 @@ public class EmployeeView extends VerticalLayout {
         dataProvider.refreshAll();
     }
 
-    public void deleteSelectedEmployees() {
+    private void deleteSelectedEmployees() {
         Set<Employee> selected = grid.getSelectedItems();
         if (!selected.isEmpty()) {
-            for (Employee employee : selected) {
-                employeeService.softDeleteEmployees(employee.getIdentityNumber());
-            }
+            presenter.deleteEmployees(selected);
             grid.deselectAll();
-            updateList();
-            Notification.show(ConfirmMessages.DELETED_EMPLOYEE.getText(), 3000, Notification.Position.BOTTOM_START)
-                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         }
     }
 
@@ -265,5 +254,32 @@ public class EmployeeView extends VerticalLayout {
         VerticalLayout dialogLayout = new VerticalLayout(updateForm, buttonLayout);
         updateDialog.add(dialogLayout);
         updateDialog.open();
+    }
+
+    public void addRefreshClickListener(ComponentEventListener<ClickEvent<Button>> listener) {
+        refreshButton.addClickListener(listener);
+    }
+
+    public void updateGrid(List<Employee> employees) {
+        dataProvider.getItems().clear();
+        dataProvider.getItems().addAll(employees);
+        dataProvider.refreshAll();
+    }
+
+    private void setupLayout() {
+        Div tooltip = new Div();
+        tooltip.setText("Double click on a row to edit employee");
+        tooltip.getStyle().set("font-size", "small");
+        tooltip.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        
+        refreshButton = new Button("Refresh", new Icon(VaadinIcon.REFRESH));
+        refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        buttonLayout.setWidthFull();
+        buttonLayout.setJustifyContentMode(JustifyContentMode.END);
+        buttonLayout.add(refreshButton);
+        
+        add(getToolbar(), tooltip, grid, buttonLayout);
     }
 }

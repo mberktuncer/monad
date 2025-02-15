@@ -18,6 +18,11 @@ public enum ErrorMessages {
     UNEXPECTED("An unexpected error occurred"),
 
     EMPLOYEE_NOT_FOUND("Employee not found."),
-    ;
+
+    ADDITIONAL_FILE_EMPTY("Additional employees file is empty"),
+    NO_MORE_EMPLOYEES("No more employees to add"),
+    INVALID_FILE_FORMAT("Invalid file format"),
+    FILE_READ_ERROR("File reading error: %s");
+
     private final String text;
 }

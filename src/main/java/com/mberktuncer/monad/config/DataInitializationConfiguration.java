@@ -1,41 +1,32 @@
 package com.mberktuncer.monad.config;
 
-import com.mberktuncer.monad.model.entity.Employee;
-import com.mberktuncer.monad.repository.EmployeeRepository;
-import jakarta.annotation.PostConstruct;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
+import com.mberktuncer.monad.constant.common.FileNames;
+import com.mberktuncer.monad.util.EmployeeFileReader;
+import com.mberktuncer.monad.service.contract.EmployeeService;
+import com.mberktuncer.monad.model.api.CreateEmployeeRequest;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-@Service
+@Configuration
 public class DataInitializationConfiguration {
 
-    private final EmployeeRepository employeeRepository;
+    private static final String EMPLOYEES_FILE = FileNames.EMPLOYEES_FILE.getFilePath();
 
-    public DataInitializationConfiguration(EmployeeRepository employeeRepository) {
-        this.employeeRepository = employeeRepository;
-    }
-
-    @PostConstruct
-    public void initializeEmployees() {
-        if (employeeRepository.count() == 0) {
-            try {
-                ClassPathResource resource = new ClassPathResource("employees.txt");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()));
-                
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] data = line.split(",");
-                    Employee employee = new Employee(data[0].trim(), data[1].trim(), data[2].trim(), 1);
-                    employeeRepository.save(employee);
+    @Bean
+    CommandLineRunner initDatabase(EmployeeService employeeService) {
+        return args -> {
+            for (int i = 0; i < 10; i++) {
+                try {
+                    CreateEmployeeRequest request = EmployeeFileReader.readEmployeeFromFile(
+                        EMPLOYEES_FILE, 
+                        i
+                    );
+                    employeeService.save(request);
+                } catch (Exception e) {
+                    break;
                 }
-                
-                reader.close();
-            } catch (Exception e) {
-                throw new RuntimeException("Something went wrong when employees importing", e);
             }
-        }
+        };
     }
 } 
